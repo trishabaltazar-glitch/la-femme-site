@@ -61,25 +61,16 @@ const products = [
 
 const featuredPosts = [
   {
-    title: "La Femme 32739",
-    image: {
-      src: "https://www.lafemmefashion.com/sites/default/files/styles/dress_315x500/public/dresses_images/navy-mother-of-the-bride-dress-1-32739.jpg?itok=x8Qe-1iO",
-      alt: "La Femme navy mother of the bride dress",
-    },
+    title: "La Femme 33355",
+    image: images.pink,
   },
   {
-    title: "La Femme 29488",
-    image: {
-      src: "https://www.lafemmefashion.com/sites/default/files/styles/dress_315x500/public/dresses_images/neon-yellow-homecoming-dress-1-29488.jpg",
-      alt: "La Femme neon yellow homecoming dress",
-    },
+    title: "La Femme 33863",
+    image: images.peach,
   },
   {
-    title: "La Femme 30929",
-    image: {
-      src: "https://www.lafemmefashion.com/sites/default/files/styles/dress_315x500/public/dresses_images/royal-blue-homecoming-dress-1-30929.jpg?itok=TusdipEo",
-      alt: "La Femme royal blue homecoming dress",
-    },
+    title: "La Femme 33417",
+    image: images.copper,
   },
 ];
 
@@ -91,11 +82,26 @@ const footerColumns = {
 };
 
 const socialLinks = [
-  ["Facebook", "f"],
-  ["Instagram", "IG"],
-  ["X", "X"],
-  ["TikTok", "TT"],
-  ["Pinterest", "P"],
+  [
+    "Facebook",
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.2 8.3h2.2V5.1c-.4-.1-1.7-.2-3.1-.2-3.1 0-5.2 1.9-5.2 5.4v3H4.8v3.6h3.3V24h4v-7.1h3.2l.5-3.6h-3.7v-2.6c0-1 .3-1.7 2.1-1.7Z"/></svg>',
+  ],
+  [
+    "Instagram",
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M7.5 2h9A5.5 5.5 0 0 1 22 7.5v9a5.5 5.5 0 0 1-5.5 5.5h-9A5.5 5.5 0 0 1 2 16.5v-9A5.5 5.5 0 0 1 7.5 2Zm0 2A3.5 3.5 0 0 0 4 7.5v9A3.5 3.5 0 0 0 7.5 20h9a3.5 3.5 0 0 0 3.5-3.5v-9A3.5 3.5 0 0 0 16.5 4h-9Zm4.5 3.8a4.2 4.2 0 1 1 0 8.4 4.2 4.2 0 0 1 0-8.4Zm0 2a2.2 2.2 0 1 0 0 4.4 2.2 2.2 0 0 0 0-4.4Zm5.4-2.6a1 1 0 1 1-2 0 1 1 0 0 1 2 0Z"/></svg>',
+  ],
+  [
+    "X",
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M14.4 10.5 22.8 1h-2l-7.3 8.2L7.7 1H1l8.8 12.4L1 23.4h2l7.7-8.7 6.2 8.7h6.7l-9.2-12.9Zm-2.7 3.1-.9-1.2L3.7 2.5h3l5.7 8 .9 1.2 7.5 10.3h-3l-6.1-8.4Z"/></svg>',
+  ],
+  [
+    "TikTok",
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M16 2c.4 3 2.1 4.8 5 5v3.4a8.5 8.5 0 0 1-5-1.6v7.1a6.1 6.1 0 1 1-6.1-6.1c.5 0 1 .1 1.5.2v3.6a2.7 2.7 0 1 0 1.1 2.2V2H16Z"/></svg>',
+  ],
+  [
+    "Pinterest",
+    '<svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12.3 2C6.7 2 3 5.7 3 10.6c0 3.1 1.7 4.9 2.8 4.9.5 0 .8-1.3.8-1.7 0-.5-1.2-1.5-1.2-3.5 0-4.1 3.1-7 7.1-7 3.4 0 5.9 1.9 5.9 5.5 0 2.7-1.1 7.8-4.6 7.8-1.3 0-2.4-.9-2.4-2.2 0-1.9 1.3-3.7 1.3-5.7 0-3.3-4.6-2.7-4.6 1.3 0 .8.1 1.8.5 2.5-.7 3-2 7.4-2 10.5 0 .3 0 .6.1.9h.2c2.6-3.5 2.5-4.2 3.7-8.8.7 1.2 2.3 1.9 3.7 1.9 5.6 0 7.7-5.5 7.7-10.4C22 4.1 17.9 2 12.3 2Z"/></svg>',
+  ],
 ];
 
 const duplicate = (items) => [...items, ...items];
@@ -187,11 +193,11 @@ render("[data-details]", details.map((detail) => `<span>${detail}</span>`).join(
 
 render(
   "[data-featured-posts]",
-  featuredPosts
+  duplicate(featuredPosts)
     .map(
-      ({ title, image: postImage }) => `
-        <article class="featured-post" aria-label="${title}">
-          <a href="#" aria-label="View ${title}">
+      ({ title, image: postImage }, index) => `
+        <article class="featured-post" aria-label="${title}"${index >= featuredPosts.length ? ' aria-hidden="true"' : ""}>
+          <a href="#" aria-label="View ${title}"${index >= featuredPosts.length ? ' tabindex="-1"' : ""}>
             ${image(postImage)}
           </a>
         </article>
@@ -212,7 +218,7 @@ render(
 
 render(
   "[data-social-links]",
-  socialLinks.map(([label, text]) => `<a href="#" aria-label="${label}">${text}</a>`).join("")
+  socialLinks.map(([label, icon]) => `<a href="#" aria-label="${label}">${icon}</a>`).join("")
 );
 
 render(
@@ -258,12 +264,33 @@ newsletterForm?.addEventListener("submit", (event) => {
   event.preventDefault();
 });
 
+const scrollFeaturedPosts = (direction) => {
+  if (!featuredList) return;
+  const maxScroll = featuredList.scrollWidth - featuredList.clientWidth;
+  if (maxScroll <= 0) return;
+
+  const scrollAmount = featuredList.clientWidth * 0.72 * direction;
+  const nextPosition = featuredList.scrollLeft + scrollAmount;
+
+  if (nextPosition < 1) {
+    featuredList.scrollTo({ left: maxScroll, behavior: "smooth" });
+    return;
+  }
+
+  if (nextPosition >= maxScroll - 1) {
+    featuredList.scrollTo({ left: 0, behavior: "smooth" });
+    return;
+  }
+
+  featuredList.scrollBy({ left: scrollAmount, behavior: "smooth" });
+};
+
 document.querySelector("[data-featured-prev]")?.addEventListener("click", () => {
-  featuredList?.scrollBy({ left: -featuredList.clientWidth * 0.72, behavior: "smooth" });
+  scrollFeaturedPosts(-1);
 });
 
 document.querySelector("[data-featured-next]")?.addEventListener("click", () => {
-  featuredList?.scrollBy({ left: featuredList.clientWidth * 0.72, behavior: "smooth" });
+  scrollFeaturedPosts(1);
 });
 
 if (reducedMotion) {
