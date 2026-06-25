@@ -1,0 +1,149 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1" />
+    <title>Contact Us | La Femme</title>
+    <meta
+      name="description"
+      content="Contact La Femme for customer service, retailer, and public relations inquiries."
+    />
+    <link rel="icon" href="data:," />
+    <link rel="preconnect" href="https://www.lafemmefashion.com" />
+    <link rel="preconnect" href="https://fonts.googleapis.com" />
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+    <link
+      href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montaga&display=swap"
+      rel="stylesheet"
+    />
+    <link rel="stylesheet" href="styles.css?v=footer-contact-1" />
+  </head>
+  <body>
+    <header class="site-header" data-header>
+      <div class="header-bar">
+        <a class="brand" href="index.html" aria-label="La Femme home">
+          <img
+            src="https://www.lafemmefashion.com/sites/default/files/logo.png"
+            alt="La Femme"
+          />
+        </a>
+
+        <div class="header-icons" aria-label="Account and shopping tools">
+          <a href="#" aria-label="Account">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M12 12.3a4.4 4.4 0 1 0 0-8.8 4.4 4.4 0 0 0 0 8.8Zm-7.4 8.2a7.4 7.4 0 0 1 14.8 0"
+              />
+            </svg>
+          </a>
+          <a href="#" aria-label="Search">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="m20 20-4.5-4.5m2-5.5a7.5 7.5 0 1 1-15 0 7.5 7.5 0 0 1 15 0Z"
+              />
+            </svg>
+          </a>
+          <a href="#" aria-label="Bag">
+            <svg viewBox="0 0 24 24" aria-hidden="true">
+              <path
+                d="M6.5 8.5h11l1.1 12h-13.2l1.1-12Zm3 0V6a2.5 2.5 0 0 1 5 0v2.5"
+              />
+            </svg>
+          </a>
+        </div>
+
+        <button
+          class="menu-button"
+          type="button"
+          aria-label="Open menu"
+          aria-expanded="false"
+          data-menu-button
+        >
+          <span></span>
+          <span></span>
+        </button>
+      </div>
+
+      <nav class="site-nav" aria-label="Primary navigation" data-nav></nav>
+    </header>
+
+    <main>
+      <section class="contact-page" aria-labelledby="contact-title">
+        <div class="section-inner contact-layout">
+          <div class="contact-intro" data-reveal>
+            <p class="eyebrow">Contact us</p>
+            <h1 id="contact-title">How can we help?</h1>
+            <p>
+              Send your question to the right La Femme team for customer
+              service, retailer, or public relations support.
+            </p>
+            <div class="button-row">
+              <a class="button button-dark" href="index.html#stores"
+                >Store Locator</a
+              >
+              <a class="button button-outline" href="index.html"
+                >Back to Home</a
+              >
+            </div>
+          </div>
+
+          <form class="contact-form" action="#" data-contact-form data-reveal>
+            <div class="field-grid">
+              <label for="first-name">
+                First Name
+                <input id="first-name" name="first-name" type="text" required />
+              </label>
+              <label for="last-name">
+                Last Name
+                <input id="last-name" name="last-name" type="text" required />
+              </label>
+            </div>
+
+            <label for="contact-email">
+              Email
+              <input id="contact-email" name="email" type="email" required />
+            </label>
+
+            <label for="inquiry-type">
+              Inquiry Type
+              <select id="inquiry-type" name="inquiry-type" required>
+                <option value="">Select one</option>
+                <option value="customer-service">Customer Service</option>
+                <option value="retailer">Retailer</option>
+                <option value="public-relations">Public Relations</option>
+              </select>
+            </label>
+
+            <label for="message">
+              Message
+              <textarea id="message" name="message" required></textarea>
+            </label>
+
+            <button class="button button-dark" type="submit">Submit</button>
+          </form>
+        </div>
+      </section>
+    </main>
+
+    <footer class="site-footer">
+      <div class="footer-brand">
+        <img
+          src="https://www.lafemmefashion.com/sites/default/files/logo.png"
+          alt="La Femme"
+        />
+        <p>
+          Designer dresses by La Femme, created for prom, evening, bridal
+          parties, and special occasions.
+        </p>
+        <div
+          class="social-links"
+          aria-label="Social links"
+          data-social-links
+        ></div>
+      </div>
+      <div class="footer-columns" data-footer-columns></div>
+    </footer>
+
+    <script src="script.js?v=footer-contact-1"></script>
+  </body>
+</html>

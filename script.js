@@ -25,22 +25,13 @@ const images = {
 };
 
 const navItems = [
-  ['Prom Dresses', '#collections', true],
-  ['Mother of the Bride', '#collections', true],
-  ['Homecoming', '#collections', true],
-  ['Plus Size', '#collections', true],
-  ['Evening Dresses', '#collections', true],
-  ['About Us', '#atelier'],
-  ['Store Locator', '#stores'],
-];
-
-const retailers = [
-  'Nordstrom',
-  "Bloomingdale's",
-  'PromGirl',
-  'Windsor',
-  'Local Bridal',
-  'Evening Edit',
+  ['Prom Dresses', 'index.html#collections', true],
+  ['Mother of the Bride', 'index.html#collections', true],
+  ['Homecoming', 'index.html#collections', true],
+  ['Plus Size', 'index.html#collections', true],
+  ['Evening Dresses', 'index.html#collections', true],
+  ['Contact Us', 'contact.html'],
+  ['Store Locator', 'index.html#stores'],
 ];
 
 const feedItems = [
@@ -83,23 +74,30 @@ const featuredPosts = [
   },
 ];
 
-const details = [
-  'Hand-finished sparkle',
-  'Soft structured fit',
-  'Occasion-ready silhouettes',
-  'Boutique discovery',
+const footerColumns = [
+  {
+    title: 'Shop',
+    links: [
+      ['Prom Dresses', 'index.html#collections'],
+      ['Mother of the Bride', 'index.html#collections'],
+      ['Homecoming', 'index.html#collections'],
+      ['Plus Size', 'index.html#collections'],
+      ['Evening Dresses', 'index.html#collections'],
+    ],
+  },
+  {
+    title: 'Company',
+    links: [
+      ['The Brand', 'index.html'],
+      ['Careers', 'contact.html'],
+      ['Become A Retailer', 'contact.html'],
+      ['Store Locator', 'index.html#stores'],
+      ['Press & Media', 'contact.html'],
+      ['Affiliate Program', 'contact.html'],
+      ['Contact Us', 'contact.html'],
+    ],
+  },
 ];
-
-const footerColumns = {
-  Shop: [
-    'Prom Dresses',
-    'Mother of the Bride',
-    'Homecoming',
-    'Plus Size',
-    'Evening Dresses',
-  ],
-  Help: ['About Us', 'Size Chart', 'Press', 'News', 'Trade Shows', 'FAQ'],
-};
 
 const socialLinks = [
   [
@@ -141,13 +139,6 @@ render(
       ([label, href, hasChevron]) =>
         `<a href="${href}">${label}${hasChevron ? '<span aria-hidden="true"></span>' : ''}</a>`,
     )
-    .join(''),
-);
-
-render(
-  '[data-retailers]',
-  duplicate(retailers)
-    .map((name) => `<span>${name}</span>`)
     .join(''),
 );
 
@@ -221,11 +212,6 @@ const renderProducts = () => {
 renderProducts();
 
 render(
-  '[data-details]',
-  details.map((detail) => `<span>${detail}</span>`).join(''),
-);
-
-render(
   '[data-featured-posts]',
   duplicate(featuredPosts)
     .map(
@@ -259,12 +245,12 @@ render(
 
 render(
   '[data-footer-columns]',
-  Object.entries(footerColumns)
+  footerColumns
     .map(
-      ([title, links]) => `
+      ({ title, links }) => `
         <nav class="footer-column" aria-label="${title}">
           <h2>${title}</h2>
-          ${links.map((link) => `<a href="#">${link}</a>`).join('')}
+          ${links.map(([label, href]) => `<a href="${href}">${label}</a>`).join('')}
         </nav>
       `,
     )
@@ -275,6 +261,7 @@ const header = document.querySelector('[data-header]');
 const menuButton = document.querySelector('[data-menu-button]');
 const nav = document.querySelector('[data-nav]');
 const newsletterForm = document.querySelector('[data-newsletter-form]');
+const contactForm = document.querySelector('[data-contact-form]');
 const featuredList = document.querySelector('[data-featured-posts]');
 const productCarousel = document.querySelector('.product-carousel');
 const reducedMotion = window.matchMedia(
@@ -300,6 +287,10 @@ document.querySelectorAll('.collection-card').forEach((card) => {
 });
 
 newsletterForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+});
+
+contactForm?.addEventListener('submit', (event) => {
   event.preventDefault();
 });
 

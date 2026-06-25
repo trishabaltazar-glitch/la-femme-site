@@ -16,12 +16,12 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montaga&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=featured-posts-6" />
+    <link rel="stylesheet" href="styles.css?v=footer-contact-1" />
   </head>
   <body>
     <header class="site-header" data-header>
       <div class="header-bar">
-        <a class="brand" href="#" aria-label="La Femme home">
+        <a class="brand" href="index.html" aria-label="La Femme home">
           <img
             src="https://www.lafemmefashion.com/sites/default/files/logo.png"
             alt="La Femme"
@@ -88,19 +88,12 @@
             fit, and a sense of ease for every celebration.
           </p>
           <div class="button-row">
-            <a class="button button-light" href="#collections"
+            <a class="button button-light" href="index.html#collections"
               >Explore Collections</a
             >
-            <a class="button button-ghost-light" href="#stores">Find a Store</a>
-          </div>
-        </div>
-      </section>
-
-      <section class="retailers" id="retailers" aria-label="Featured retailers">
-        <div class="retailer-strip" data-reveal>
-          <p class="eyebrow">As seen in</p>
-          <div class="logo-marquee" aria-label="Retailer carousel">
-            <div class="logo-track" data-retailers></div>
+            <a class="button button-ghost-light" href="index.html#stores"
+              >Find a Store</a
+            >
           </div>
         </div>
       </section>
@@ -196,28 +189,34 @@
         </div>
       </section>
 
-      <section class="atelier" id="atelier" aria-labelledby="atelier-title">
-        <div class="section-inner atelier-layout">
-          <div class="atelier-copy" data-reveal>
-            <p class="eyebrow">Crafted details</p>
-            <h2 id="atelier-title">
-              Designed to feel special from every angle
-            </h2>
+      <section
+        class="newsletter newsletter-dark"
+        id="newsletter"
+        aria-labelledby="newsletter-title"
+      >
+        <div
+          class="section-inner newsletter-layout newsletter-dark-layout"
+          data-reveal
+        >
+          <div>
+            <p class="eyebrow">Newsletter</p>
+            <h2 id="newsletter-title">Be first to see what is next</h2>
             <p>
-              From luminous beading to flowing chiffon and sculpted bodices,
-              each dress is made to bring ease, polish, and presence to the
-              occasion.
+              Receive collection arrivals, styling inspiration, and retailer
+              updates for your next special occasion.
             </p>
-            <a class="button button-light" href="#collections"
-              >Explore Dresses</a
-            >
           </div>
-          <div
-            class="detail-list"
-            aria-label="Design details"
-            data-details
-            data-reveal
-          ></div>
+          <form class="newsletter-form" action="#" data-newsletter-form>
+            <label class="sr-only" for="newsletter-email">Email address</label>
+            <input
+              id="newsletter-email"
+              name="email"
+              type="email"
+              placeholder="Email address"
+              required
+            />
+            <button class="button button-light" type="submit">Subscribe</button>
+          </form>
         </div>
       </section>
 
@@ -231,8 +230,12 @@
               appointment guidance, and local collection availability.
             </p>
             <div class="button-row">
-              <a class="button button-dark" href="#">Find a Store</a>
-              <a class="button button-outline" href="#">Contact Us</a>
+              <a class="button button-dark" href="index.html#stores"
+                >Find a Store</a
+              >
+              <a class="button button-outline" href="contact.html"
+                >Contact Us</a
+              >
             </div>
           </div>
           <div class="stores-media" data-store-media data-reveal></div>
@@ -280,28 +283,6 @@
         </div>
       </section>
 
-      <section class="newsletter" aria-labelledby="newsletter-title">
-        <div class="section-inner newsletter-layout" data-reveal>
-          <div>
-            <p class="eyebrow">Newsletter</p>
-            <h2 id="newsletter-title">Be first to see what is next</h2>
-            <p>
-              Receive collection arrivals, styling inspiration, and retailer
-              updates for your next special occasion.
-            </p>
-          </div>
-          <form class="newsletter-form" action="#" data-newsletter-form>
-            <label class="sr-only" for="newsletter-email">Email address</label>
-            <input
-              id="newsletter-email"
-              name="email"
-              type="email"
-              placeholder="Email address"
-            />
-            <button class="button button-dark" type="submit">Subscribe</button>
-          </form>
-        </div>
-      </section>
     </main>
 
     <footer class="site-footer">
@@ -323,6 +304,6 @@
       <div class="footer-columns" data-footer-columns></div>
     </footer>
 
-    <script src="script.js?v=featured-posts-7"></script>
+    <script src="script.js?v=footer-contact-1"></script>
   </body>
 </html>
