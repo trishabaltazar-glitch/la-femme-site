@@ -31,8 +31,37 @@ const navItems = [
   ['Plus Size', 'index.html#collections', true],
   ['Evening Dresses', 'index.html#collections', true],
   ['Contact Us', 'contact.html'],
-  ['Store Locator', 'index.html#stores'],
+  ['Where to Buy', 'store-locator.html'],
 ];
+
+const locatorMenuMarkup = `
+  <a href="index.html#collections">Prom Dresses<span aria-hidden="true"></span></a>
+  <a href="index.html#collections">Mother of the Bride<span aria-hidden="true"></span></a>
+  <a href="index.html#collections">Homecoming<span aria-hidden="true"></span></a>
+  <a href="index.html#collections">Plus Size<span aria-hidden="true"></span></a>
+  <a href="contact.html">Contact Us</a>
+  <details class="where-to-buy-menu">
+    <summary>Store Locator<span aria-hidden="true"></span></summary>
+    <div class="where-to-buy-links">
+      <a href="store-locator.html">Store Locator</a>
+      <details class="country-flyout">
+        <summary>United States<span aria-hidden="true"></span></summary>
+        <div class="country-city-links">
+          <a href="stores-chicago-il.html">Chicago, IL</a>
+          <a href="stores-dallas-tx.html">Dallas, TX</a>
+          <a href="stores-los-angeles-ca.html">Los Angeles, CA</a>
+          <a href="stores-new-york-ny.html">New York, NY</a>
+        </div>
+      </details>
+      <details class="country-flyout">
+        <summary>Canada<span aria-hidden="true"></span></summary>
+        <div class="country-city-links">
+          <a href="stores-toronto-on.html">Toronto, ON</a>
+        </div>
+      </details>
+    </div>
+  </details>
+`;
 
 const feedItems = [
   ['Cloud blue tulle', images.cloud],
@@ -91,7 +120,12 @@ const footerColumns = [
       ['The Brand', 'index.html'],
       ['Careers', 'contact.html'],
       ['Become A Retailer', 'contact.html'],
-      ['Store Locator', 'index.html#stores'],
+      ['Store Locator', 'store-locator.html'],
+      ['Chicago Stores', 'stores-chicago-il.html'],
+      ['Dallas Stores', 'stores-dallas-tx.html'],
+      ['Los Angeles Stores', 'stores-los-angeles-ca.html'],
+      ['New York Stores', 'stores-new-york-ny.html'],
+      ['Toronto Stores', 'stores-toronto-on.html'],
       ['Press & Media', 'contact.html'],
       ['Affiliate Program', 'contact.html'],
       ['Contact Us', 'contact.html'],
@@ -132,15 +166,9 @@ const render = (selector, markup) => {
   if (node) node.innerHTML = markup;
 };
 
-render(
-  '[data-nav]',
-  navItems
-    .map(
-      ([label, href, hasChevron]) =>
-        `<a href="${href}">${label}${hasChevron ? '<span aria-hidden="true"></span>' : ''}</a>`,
-    )
-    .join(''),
-);
+if (!document.querySelector('[data-nav]')?.children.length) {
+  render('[data-nav]', locatorMenuMarkup);
+}
 
 render(
   '[data-feed]',
@@ -262,6 +290,7 @@ const menuButton = document.querySelector('[data-menu-button]');
 const nav = document.querySelector('[data-nav]');
 const newsletterForm = document.querySelector('[data-newsletter-form]');
 const contactForm = document.querySelector('[data-contact-form]');
+const storeSearchForm = document.querySelector('[data-store-search]');
 const featuredList = document.querySelector('[data-featured-posts]');
 const productCarousel = document.querySelector('.product-carousel');
 const reducedMotion = window.matchMedia(
@@ -271,12 +300,14 @@ const reducedMotion = window.matchMedia(
 menuButton?.addEventListener('click', () => {
   const isOpen = header.classList.toggle('is-open');
   menuButton.setAttribute('aria-expanded', String(isOpen));
+  menuButton.setAttribute('aria-label', isOpen ? 'Close menu' : 'Open menu');
 });
 
 nav?.addEventListener('click', (event) => {
   if (!(event.target instanceof HTMLAnchorElement)) return;
   header.classList.remove('is-open');
   menuButton?.setAttribute('aria-expanded', 'false');
+  menuButton?.setAttribute('aria-label', 'Open menu');
 });
 
 document.querySelectorAll('.collection-card').forEach((card) => {
@@ -292,6 +323,75 @@ newsletterForm?.addEventListener('submit', (event) => {
 
 contactForm?.addEventListener('submit', (event) => {
   event.preventDefault();
+});
+
+const cityMapLayout = document.querySelector('.city-map-layout');
+const cityMapCopy = cityMapLayout?.querySelector('.city-map-copy');
+const cityRetailerCards = Array.from(document.querySelectorAll('.retailer-card'));
+
+if (cityMapLayout && cityMapCopy && cityRetailerCards.length) {
+  const cityLocatorResults = document.createElement('div');
+  cityLocatorResults.className = 'city-locator-results';
+  cityLocatorResults.setAttribute('aria-label', 'Retailers shown on the map');
+
+  cityRetailerCards.forEach((card, index) => {
+    const name = card.querySelector('h3')?.textContent.trim();
+    const address = card.querySelector('address');
+    const phone = card.querySelector('a[href^="tel:"]');
+    const website = card.querySelector('.retailer-details a[href^="http"]');
+    const directions = card.querySelector('.retailer-actions a[href*="google.com/maps"]');
+    if (!name || !address) return;
+
+    const result = document.createElement('article');
+    result.className = 'city-locator-result';
+
+    const marker = document.createElement('span');
+    marker.className = 'city-locator-marker';
+    marker.textContent = String(index + 1);
+    marker.setAttribute('aria-hidden', 'true');
+
+    const content = document.createElement('div');
+    const title = document.createElement('h3');
+    title.textContent = name;
+    content.append(title, address.cloneNode(true));
+
+    const links = document.createElement('div');
+    links.className = 'city-locator-result-links';
+    [phone, website, directions].forEach((source) => {
+      if (!source) return;
+      const link = source.cloneNode(true);
+      if (source === directions) link.textContent = 'Directions';
+      links.append(link);
+    });
+    content.append(links);
+    result.append(marker, content);
+    cityLocatorResults.append(result);
+  });
+
+  cityMapLayout.classList.add('is-city-locator');
+  cityMapCopy.append(cityLocatorResults);
+}
+
+storeSearchForm?.addEventListener('submit', (event) => {
+  event.preventDefault();
+  const input = storeSearchForm.querySelector('input');
+  const message = document.querySelector('[data-store-search-message]');
+  const query = input?.value.trim().toLowerCase() || '';
+  const cityLinks = Array.from(document.querySelectorAll('[data-city-link]'));
+  const match = cityLinks.find((link) =>
+    link.dataset.searchTerms?.toLowerCase().includes(query),
+  );
+
+  if (match && query) {
+    window.location.assign(match.href);
+    return;
+  }
+
+  if (message) {
+    message.textContent = query
+      ? 'No city page matches that search yet. Browse the city list below or contact us for retailer help.'
+      : 'Enter a city, state, or ZIP code to find an authorized retailer.';
+  }
 });
 
 const scrollProductFavorites = (direction) => {
