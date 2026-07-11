@@ -1438,7 +1438,7 @@ if (mainContent && isCityGuidePage && !mainContent.querySelector('.locator-assur
       </div>
       <form class="assurance-search" action="#" data-assurance-search>
         <label class="sr-only" for="authorized-retailer-search">Search by store name, phone, or website</label>
-        <input id="authorized-retailer-search" type="search" placeholder="Search by store name, phone, or website" autocomplete="off" />
+        <input id="authorized-retailer-search" type="search" placeholder="Retailer, phone, website" autocomplete="off" />
         <button type="submit">Search</button>
       </form>
     </div>
@@ -1545,6 +1545,55 @@ const populateCitySelector = (selector, selectedHref = '') => {
       if (selector.value) window.location.assign(selector.value);
     });
   }
+};
+
+const enhanceCitySelectorSearch = (selector) => {
+  if (!(selector instanceof HTMLSelectElement) || selector.dataset.citySearchEnhanced === 'true') return;
+  const field = selector.closest('.locator-filter-field');
+  if (!(field instanceof HTMLElement)) return;
+
+  const options = getCityGuideOptions();
+  const listId = `${selector.id || 'store-city'}-options`;
+  const input = document.createElement('input');
+  input.className = 'locator-city-combobox';
+  input.type = 'search';
+  input.setAttribute('list', listId);
+  input.setAttribute('autocomplete', 'off');
+  input.setAttribute('placeholder', 'Search city');
+  input.setAttribute('aria-label', 'Search city');
+
+  const list = document.createElement('datalist');
+  list.id = listId;
+  options.forEach(({ label }) => {
+    const option = document.createElement('option');
+    option.value = label;
+    list.append(option);
+  });
+
+  const syncInput = () => {
+    const selected = options.find(({ href }) => href === selector.value);
+    input.value = selected?.label || '';
+  };
+  const syncSelector = () => {
+    const query = normalizeLocatorSearch(input.value);
+    const match = options.find(({ label }) => normalizeLocatorSearch(label) === query);
+    selector.value = match?.href || '';
+  };
+
+  input.addEventListener('input', syncSelector);
+  input.addEventListener('change', syncSelector);
+  selector.addEventListener('change', syncInput);
+  selector.addEventListener('city-selector-sync', syncInput);
+
+  field.classList.add('is-searchable-city');
+  selector.classList.add('locator-native-city-select');
+  selector.hidden = true;
+  selector.tabIndex = -1;
+  selector.setAttribute('aria-hidden', 'true');
+  selector.insertAdjacentElement('afterend', list);
+  selector.insertAdjacentElement('afterend', input);
+  selector.dataset.citySearchEnhanced = 'true';
+  syncInput();
 };
 
 const normalizePostalCode = (value = '') => String(value).replace(/[^a-z0-9]/gi, '').toUpperCase();
@@ -1893,15 +1942,27 @@ if (cityHeroLayout && !document.querySelector('.locator-assurance') && !cityHero
   cityHeroLayout.append(cityHeroSearch);
 }
 
-const locatorMapMarker = document.querySelector('.locator-map-marker');
 const locatorResultCards = Array.from(
-  document.querySelectorAll('.locator-result-card[data-marker-left]'),
+  document.querySelectorAll('.locator-result-list > .locator-result-card'),
 );
 
 const mainCitySelector = storeSearchForm?.querySelector('[data-city-selector]');
 populateCitySelector(mainCitySelector);
 
 const mainLocatorPanel = document.querySelector('.locator-results-panel');
+let locatorClearButton = null;
+
+const setLocatorClearVisible = (isVisible) => {
+  if (locatorClearButton instanceof HTMLButtonElement) locatorClearButton.hidden = !isVisible;
+};
+
+const setLocatorDirectoryVisible = (isVisible) => {
+  const directory = mainLocatorPanel?.querySelector('.locator-city-directory');
+  if (directory instanceof HTMLElement) directory.hidden = !isVisible;
+  mainLocatorPanel?.classList.toggle('is-city-directory', isVisible);
+  setLocatorClearVisible(!isVisible);
+};
+
 if (storeSearchForm && mainLocatorPanel) {
   const cityOptions = getCityGuideOptions();
   const cityDirectory = document.createElement('nav');
@@ -1916,18 +1977,40 @@ if (storeSearchForm && mainLocatorPanel) {
     feedback.textContent = `Browse all ${cityOptions.length} city locations.`;
   }
 
-  mainLocatorPanel.classList.add('is-city-directory');
   mainLocatorPanel.insertBefore(cityDirectory, mainLocatorPanel.querySelector('.locator-result-list'));
+  setLocatorDirectoryVisible(true);
 }
 
 const mainLocatorResultList = mainLocatorPanel?.querySelector('.locator-result-list');
 const mainLocatorFeedback = mainLocatorPanel?.querySelector('[data-store-search-message]');
 const mainLocatorMap = document.querySelector('.locator-map-panel iframe');
+
+if (mainLocatorPanel && mainLocatorFeedback) {
+  const feedbackBar = document.createElement('div');
+  feedbackBar.className = 'locator-feedback-bar';
+  mainLocatorFeedback.before(feedbackBar);
+  feedbackBar.append(mainLocatorFeedback);
+
+  locatorClearButton = document.createElement('button');
+  locatorClearButton.className = 'locator-clear-results';
+  locatorClearButton.type = 'button';
+  locatorClearButton.hidden = true;
+  locatorClearButton.setAttribute('aria-label', 'Clear selected city');
+  locatorClearButton.textContent = '×';
+  feedbackBar.append(locatorClearButton);
+}
+
 const cityRetailerCache = new Map();
 
 const getRetailerWebsiteUrl = (website = '') => {
   const value = website.trim();
   return /^https?:\/\//i.test(value) ? value : `https://${value}`;
+};
+
+const updateMapIframe = (iframe, query, title = 'Map of La Femme retailers') => {
+  if (!(iframe instanceof HTMLIFrameElement) || !query) return;
+  iframe.title = title;
+  iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
 };
 
 const loadCityRetailers = async (href) => {
@@ -1954,15 +2037,11 @@ const loadCityRetailers = async (href) => {
 
 const renderMainLocatorRetailers = async (option) => {
   if (!mainLocatorPanel || !mainLocatorResultList || !option) return;
-  mainLocatorPanel.classList.remove('is-city-directory');
+  setLocatorDirectoryVisible(false);
   mainLocatorResultList.replaceChildren();
   if (mainLocatorFeedback) mainLocatorFeedback.textContent = `Loading authorized retailers in ${option.label}…`;
 
   const retailers = await loadCityRetailers(option.href);
-  const markerPositions = [
-    ['51%', '46%'], ['54%', '51%'], ['48%', '42%'], ['58%', '44%'], ['45%', '54%'],
-  ];
-
   if (mainLocatorMap) {
     mainLocatorMap.title = `Map of La Femme retailers in ${option.label}`;
     mainLocatorMap.src = `https://www.google.com/maps?q=${encodeURIComponent(`La Femme dresses ${option.label}`)}&output=embed`;
@@ -1979,9 +2058,6 @@ const renderMainLocatorRetailers = async (option) => {
     card.className = 'locator-result-card';
     if (index === 0) card.classList.add('is-featured');
     card.tabIndex = 0;
-    const [markerLeft, markerTop] = markerPositions[index % markerPositions.length];
-    card.dataset.markerLeft = markerLeft;
-    card.dataset.markerTop = markerTop;
 
     const pin = document.createElement('span');
     pin.className = 'locator-pin';
@@ -2033,8 +2109,8 @@ const renderMainLocatorRetailers = async (option) => {
       mainLocatorResultList.querySelectorAll('.locator-result-card').forEach((item) => {
         item.classList.toggle('is-featured', item === card);
       });
-      locatorMapMarker?.style.setProperty('--marker-left', markerLeft);
-      locatorMapMarker?.style.setProperty('--marker-top', markerTop);
+      const mapQuery = addressLine || `${retailer.name || 'La Femme retailer'} ${option.label}`;
+      updateMapIframe(mainLocatorMap, mapQuery, `Map of ${retailer.name || 'La Femme retailer'}`);
     };
     card.addEventListener('click', (event) => {
       if (event.target instanceof Element && event.target.closest('a')) return;
@@ -2047,6 +2123,7 @@ const renderMainLocatorRetailers = async (option) => {
     });
     card.append(pin, content);
     mainLocatorResultList.append(card);
+    if (index === 0) activate();
   });
 };
 
@@ -2071,7 +2148,10 @@ const renderLocatorAjaxCity = async (option, updateHistory = false) => {
   if (!slug) return false;
 
   await renderMainLocatorRetailers(option);
-  if (mainCitySelector instanceof HTMLSelectElement) mainCitySelector.value = option.href;
+  if (mainCitySelector instanceof HTMLSelectElement) {
+    mainCitySelector.value = option.href;
+    mainCitySelector.dispatchEvent(new Event('city-selector-sync'));
+  }
 
   if (mainLocatorResultList && !mainLocatorResultList.querySelector('.locator-city-detail-link')) {
     const cityLink = document.createElement('a');
@@ -2089,6 +2169,32 @@ const renderLocatorAjaxCity = async (option, updateHistory = false) => {
 
   return true;
 };
+
+const resetMainLocatorDirectory = (updateHistory = false) => {
+  if (!mainLocatorPanel || !mainLocatorResultList) return;
+  const cityOptions = getCityGuideOptions();
+  setLocatorDirectoryVisible(true);
+  mainLocatorResultList.replaceChildren();
+  if (mainLocatorFeedback) {
+    mainLocatorFeedback.textContent = `Browse all ${cityOptions.length} city locations.`;
+  }
+  const locationInput = storeSearchForm?.querySelector('input[name="location"]');
+  if (locationInput instanceof HTMLInputElement) locationInput.value = '';
+  if (mainCitySelector instanceof HTMLSelectElement) {
+    mainCitySelector.value = '';
+    mainCitySelector.dispatchEvent(new Event('city-selector-sync'));
+  }
+  if (mainLocatorMap) {
+    updateMapIframe(mainLocatorMap, 'La Femme dresses United States', 'Map of La Femme dress retailers');
+  }
+  if (updateHistory) {
+    const url = new URL(window.location.href);
+    url.searchParams.delete('city');
+    window.history.pushState({ locatorCity: '' }, '', url);
+  }
+};
+
+locatorClearButton?.addEventListener('click', () => resetMainLocatorDirectory(true));
 
 mainCitySelector?.addEventListener('change', () => {
   const option = getCityGuideOptions().find((item) => item.href === mainCitySelector.value);
@@ -2117,8 +2223,10 @@ if (storeSearchForm && mainLocatorPanel) {
 
 const activateLocatorCard = (card) => {
   locatorResultCards.forEach((item) => item.classList.toggle('is-featured', item === card));
-  locatorMapMarker?.style.setProperty('--marker-left', card.dataset.markerLeft || '51%');
-  locatorMapMarker?.style.setProperty('--marker-top', card.dataset.markerTop || '46%');
+  const mapQuery = card.querySelector('address')?.textContent.trim()
+    || card.querySelector('h2')?.textContent.trim()
+    || '';
+  updateMapIframe(mainLocatorMap, mapQuery, `Map of ${card.querySelector('h2')?.textContent.trim() || 'La Femme retailer'}`);
 };
 
 locatorResultCards.forEach((card) => {
@@ -2147,23 +2255,23 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
   cityFilterBar.innerHTML = `
     <div class="locator-filter-field locator-filter-field-wide">
       <span>Where</span>
-      <label class="sr-only" for="city-store-search">Search by postcode or address</label>
+      <label class="sr-only" for="city-store-search">Search by city, state, or ZIP/postal code</label>
       <input
         id="city-store-search"
         name="location"
         type="search"
         placeholder="Search by postcode or address"
-        autocomplete="postal-code"
+        autocomplete="off"
       />
     </div>
     <div class="locator-filter-field">
       <span>City</span>
-      <label class="sr-only" for="city-store-city">Select a city</label>
+      <label class="sr-only" for="city-store-city">Search or select a city</label>
       <select id="city-store-city" name="city" data-city-selector></select>
     </div>
-    <div class="locator-filter-field">
+    <div class="locator-filter-field locator-category-field">
       <span>Category</span>
-      <button type="button">Prom dresses</button>
+      <span class="locator-static-filter" aria-label="Category: Prom dresses">Prom dresses</span>
     </div>
     <button class="locator-filter-submit" type="submit" aria-label="Search stores">
       <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -2198,11 +2306,6 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
     cityRetailerCards.length === 1 ? 'retailer' : 'retailers'
   } near ${cityName}.`;
 
-  const cityMapMarker = document.createElement('span');
-  cityMapMarker.className = 'locator-map-marker city-locator-map-marker';
-  cityMapMarker.setAttribute('aria-label', 'Authorized retailer marker');
-  cityMapFrame.append(cityMapMarker);
-
   const compactAddressText = (node) =>
     node.innerHTML
       .split(/<br\s*\/?>/i)
@@ -2213,14 +2316,6 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
   const cityLocatorResults = document.createElement('div');
   cityLocatorResults.className = 'city-locator-results';
   cityLocatorResults.setAttribute('aria-label', 'Retailers shown on the map');
-
-  const markerPositions = [
-    ['51%', '46%'],
-    ['54%', '51%'],
-    ['48%', '42%'],
-    ['58%', '44%'],
-    ['45%', '54%'],
-  ];
 
   cityRetailerCards.forEach((card, index) => {
     const name = card.querySelector('h3')?.textContent.trim();
@@ -2233,9 +2328,6 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
     result.className = 'locator-result-card city-locator-result';
     if (index === 0) result.classList.add('is-featured');
     result.tabIndex = 0;
-    const [markerLeft, markerTop] = markerPositions[index % markerPositions.length];
-    result.dataset.markerLeft = markerLeft;
-    result.dataset.markerTop = markerTop;
     result.setAttribute('aria-label', `Show ${name} on map`);
 
     const marker = document.createElement('span');
@@ -2257,6 +2349,7 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
     flowers.textContent = '✿ ✿ ✿ ✿ ✿';
     const compactAddress = document.createElement('address');
     compactAddress.textContent = compactAddressText(address);
+    result.dataset.mapQuery = compactAddress.textContent || name;
     content.append(title, flowers, compactAddress);
 
     [phone, website].forEach((source) => {
@@ -2277,8 +2370,11 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
 
   const activateCityLocatorCard = (card) => {
     cityLocatorCards.forEach((item) => item.classList.toggle('is-featured', item === card));
-    cityMapMarker.style.setProperty('--marker-left', card.dataset.markerLeft || '51%');
-    cityMapMarker.style.setProperty('--marker-top', card.dataset.markerTop || '46%');
+    updateMapIframe(
+      cityMapFrame.querySelector('iframe'),
+      card.dataset.mapQuery || card.querySelector('h2')?.textContent.trim() || '',
+      `Map of ${card.querySelector('h2')?.textContent.trim() || 'La Femme retailer'}`,
+    );
   };
 
   cityLocatorCards.forEach((card) => {
@@ -2293,6 +2389,8 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
       activateCityLocatorCard(card);
     });
   });
+
+  if (cityLocatorCards[0]) activateCityLocatorCard(cityLocatorCards[0]);
 }
 
 storeSearchForm?.addEventListener('submit', async (event) => {
@@ -2334,7 +2432,11 @@ if (storeSearchForm && mainLocatorPanel) {
   window.addEventListener('popstate', () => {
     const citySlug = new URLSearchParams(window.location.search).get('city') || '';
     const cityOption = getLocatorCityOptionBySlug(citySlug);
-    if (cityOption) renderLocatorAjaxCity(cityOption, false);
+    if (cityOption) {
+      renderLocatorAjaxCity(cityOption, false);
+    } else {
+      resetMainLocatorDirectory(false);
+    }
   });
 }
 

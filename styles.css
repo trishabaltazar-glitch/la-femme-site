@@ -3255,10 +3255,10 @@ h3 {
   gap: 14px 18px;
   height: clamp(560px, 54vw, 650px);
   margin-top: 22px;
-  padding: 18px;
+  padding: 16px;
   overflow: hidden;
   border: 1px solid var(--line);
-  border-radius: 10px;
+  border-radius: 8px;
   background: #fff;
 }
 
@@ -3279,20 +3279,20 @@ h3 {
 
 .locator-filter-bar {
   display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr)) 46px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 1fr) 46px;
   grid-column: 1 / -1;
   gap: 12px;
 }
 
 .city-map-layout.is-city-locator .city-locator-filter-bar {
-  grid-template-columns: repeat(3, minmax(0, 1fr)) 46px;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr) minmax(150px, 1fr) 46px;
 }
 
 .locator-filter-field {
   min-width: 0;
 }
 
-.locator-filter-field span {
+.locator-filter-field > span:not(.locator-static-filter) {
   display: block;
   margin-bottom: 7px;
   color: var(--ink);
@@ -3302,7 +3302,8 @@ h3 {
 
 .locator-filter-field input,
 .locator-filter-field button,
-.locator-filter-field select {
+.locator-filter-field select,
+.locator-static-filter {
   width: 100%;
   min-width: 0;
   min-height: 42px;
@@ -3315,6 +3316,17 @@ h3 {
   font-size: 0.78rem;
 }
 
+.locator-static-filter {
+  display: inline-flex;
+  align-items: center;
+  line-height: 1;
+  margin-bottom: 0;
+  color: var(--ink);
+  font-weight: 400;
+  cursor: default;
+  user-select: none;
+}
+
 .locator-filter-field button {
   text-align: left;
 }
@@ -3323,10 +3335,25 @@ h3 {
   cursor: pointer;
 }
 
+.locator-filter-field.is-searchable-city .locator-native-city-select {
+  display: none;
+}
+
+.locator-filter-field select[hidden],
+.locator-city-directory[hidden] {
+  display: none !important;
+}
+
+.locator-city-combobox {
+  cursor: text;
+}
+
 .locator-filter-submit {
   display: grid;
   width: 46px;
   height: 42px;
+  min-height: 42px;
+  padding: 0;
   align-self: end;
   place-items: center;
   border: 0;
@@ -3337,8 +3364,9 @@ h3 {
 }
 
 .locator-filter-submit svg {
-  width: 19px;
-  height: 19px;
+  display: block;
+  width: 18px;
+  height: 18px;
   fill: none;
   stroke: currentColor;
   stroke-linecap: round;
@@ -3346,10 +3374,46 @@ h3 {
 }
 
 .locator-search-feedback {
-  padding: 2px 2px 12px;
+  margin: 0;
   color: var(--muted);
   font-size: 0.74rem;
   line-height: 1.4;
+}
+
+.locator-feedback-bar {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 0 2px 12px;
+}
+
+.locator-clear-results {
+  display: grid;
+  flex: 0 0 auto;
+  width: 28px;
+  height: 28px;
+  place-items: center;
+  border: 1px solid var(--line);
+  border-radius: 999px;
+  background: var(--paper);
+  color: var(--ink);
+  cursor: pointer;
+  font: inherit;
+  font-size: 0.9rem;
+  font-weight: 600;
+  line-height: 1;
+}
+
+.locator-clear-results:hover,
+.locator-clear-results:focus-visible {
+  border-color: var(--ink);
+  background: #fff;
+  color: var(--ink);
+}
+
+.locator-clear-results[hidden] {
+  display: none;
 }
 
 .locator-result-list {
@@ -3364,6 +3428,10 @@ h3 {
 }
 
 .locator-results-panel.is-city-directory .locator-result-list {
+  display: none;
+}
+
+.locator-results-panel:not(.is-city-directory) .locator-city-directory {
   display: none;
 }
 
@@ -3541,20 +3609,6 @@ h3 {
   z-index: 0;
 }
 
-.locator-map-marker {
-  position: absolute;
-  display: block;
-  top: var(--marker-top, 46%);
-  left: var(--marker-left, 51%);
-  width: 16px;
-  height: 16px;
-  border: 3px solid #fff;
-  border-radius: 50%;
-  background: var(--clay);
-  transform: translate(-50%, -50%);
-  z-index: 2;
-}
-
 @media (max-width: 860px) {
   .locator-classic {
     padding-top: 52px;
@@ -3589,7 +3643,7 @@ h3 {
     min-height: 430px;
   }
 
-  .locator-filter-field-wide,
+  .locator-filter-field,
   .locator-filter-submit {
     grid-column: 1 / -1;
   }
@@ -3602,7 +3656,7 @@ h3 {
     grid-template-columns: 1fr 1fr;
   }
 
-  .city-map-layout.is-city-locator .locator-filter-field-wide,
+  .city-map-layout.is-city-locator .locator-filter-field,
   .city-map-layout.is-city-locator .locator-filter-submit {
     grid-column: 1 / -1;
   }

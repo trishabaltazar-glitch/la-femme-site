@@ -16,7 +16,7 @@
       href="https://fonts.googleapis.com/css2?family=Cinzel:wght@400;500;600&family=Montaga&display=swap"
       rel="stylesheet"
     />
-    <link rel="stylesheet" href="styles.css?v=store-locator-mega-wizard-containers-2" />
+    <link rel="stylesheet" href="styles.css?v=store-locator-search-ux-15" />
   </head>
   <body>
     <header class="site-header" data-header>
@@ -76,25 +76,25 @@
           <form class="locator-filter-bar" data-store-search>
             <div class="locator-filter-field locator-filter-field-wide">
               <span>Where</span>
-              <label class="sr-only" for="store-search">Search by postcode or address</label>
+              <label class="sr-only" for="store-search">Search by city, state, or ZIP/postal code</label>
               <input
                 id="store-search"
                 name="location"
                 type="search"
                 placeholder="Search by postcode or address"
-                autocomplete="postal-code"
+                autocomplete="off"
               />
             </div>
             <div class="locator-filter-field">
               <span>City</span>
-              <label class="sr-only" for="store-city">Select a city</label>
+              <label class="sr-only" for="store-city">Search or select a city</label>
               <select id="store-city" name="city" data-city-selector>
                 <option value="">Select a city</option>
               </select>
             </div>
-            <div class="locator-filter-field">
+            <div class="locator-filter-field locator-category-field">
               <span>Category</span>
-              <button type="button">Prom dresses</button>
+              <span class="locator-static-filter" aria-label="Category: Prom dresses">Prom dresses</span>
             </div>
             <button class="locator-filter-submit" type="submit" aria-label="Search stores">
               <svg viewBox="0 0 24 24" aria-hidden="true">
@@ -113,8 +113,6 @@
               <article
                 class="locator-result-card is-featured"
                 tabindex="0"
-                data-marker-left="51%"
-                data-marker-top="46%"
                 aria-label="Show Peaches on map"
               >
                 <span class="locator-pin" aria-hidden="true">
@@ -141,8 +139,6 @@
               <article
                 class="locator-result-card"
                 tabindex="0"
-                data-marker-left="53%"
-                data-marker-top="49%"
                 aria-label="Show Prom Dress Shop on map"
               >
                 <span class="locator-pin" aria-hidden="true">
@@ -171,12 +167,11 @@
 
           <div class="locator-map-panel">
             <iframe
-              title="Map of La Femme dress retailers near Chicago"
-              src="https://www.google.com/maps?q=La+Femme+dresses+near+5915+S+Archer+Ave,+Chicago,+IL+60638&output=embed"
+              title="Map of La Femme dress retailers"
+              src="https://www.google.com/maps?q=La+Femme+dresses+United+States&output=embed"
               loading="lazy"
               referrerpolicy="no-referrer-when-downgrade"
             ></iframe>
-            <span class="locator-map-marker" aria-label="Authorized retailer marker"></span>
           </div>
         </div>
       </section>
@@ -193,7 +188,7 @@
               <input
                 id="authorized-retailer-search"
                 type="search"
-                placeholder="Search by store name, phone, or website"
+                placeholder="Retailer, phone, website"
                 autocomplete="off"
               />
               <button type="submit">Search</button>
@@ -201,8 +196,8 @@
           </div>
           <div class="assurance-copy">
             <p>
-              Search our authorized retailers by city or ZIP code to find a
-              La Femme stockist near you.
+              Search by store name, phone number, or website to confirm a La
+              Femme stockist is listed in our authorized retailer directory.
             </p>
           </div>
         </div>
@@ -1172,7 +1167,7 @@
           </div>
 
           <p class="city-directory-note">
-            This prototype lists 821 city pages across United States, Australia, and Canada, generated from 821 published physical retailer records.
+            This directory lists 629 city pages across United States, Australia, and Canada, generated from 821 published physical retailer records.
           </p>
         </div>
       </section>
@@ -1228,6 +1223,6 @@
     <script src="location-index.js?v=store-locator-zip-1"></script>
     <script src="retailer-index.js?v=store-locator-retailer-index-1"></script>
     <script src="city-retailers.js?v=store-locator-city-retailers-2"></script>
-    <script src="script.js?v=store-locator-stores-folder-1"></script>
+    <script src="script.js?v=store-locator-search-ux-15"></script>
   </body>
 </html>
