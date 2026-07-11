@@ -2013,6 +2013,12 @@ const updateMapIframe = (iframe, query, title = 'Map of La Femme retailers') => 
   iframe.src = `https://www.google.com/maps?q=${encodeURIComponent(query)}&output=embed`;
 };
 
+const getStoreMapQuery = (name = '', address = '') =>
+  [name, address]
+    .map((part) => String(part || '').trim())
+    .filter(Boolean)
+    .join(' ');
+
 const loadCityRetailers = async (href) => {
   if (cityRetailerCache.has(href)) return cityRetailerCache.get(href);
   const dataHref = href.replace(/^\.\.\//, '');
@@ -2109,7 +2115,8 @@ const renderMainLocatorRetailers = async (option) => {
       mainLocatorResultList.querySelectorAll('.locator-result-card').forEach((item) => {
         item.classList.toggle('is-featured', item === card);
       });
-      const mapQuery = addressLine || `${retailer.name || 'La Femme retailer'} ${option.label}`;
+      const mapQuery = getStoreMapQuery(retailer.name || 'La Femme retailer', addressLine)
+        || `${retailer.name || 'La Femme retailer'} ${option.label}`;
       updateMapIframe(mainLocatorMap, mapQuery, `Map of ${retailer.name || 'La Femme retailer'}`);
     };
     card.addEventListener('click', (event) => {
@@ -2223,10 +2230,9 @@ if (storeSearchForm && mainLocatorPanel) {
 
 const activateLocatorCard = (card) => {
   locatorResultCards.forEach((item) => item.classList.toggle('is-featured', item === card));
-  const mapQuery = card.querySelector('address')?.textContent.trim()
-    || card.querySelector('h2')?.textContent.trim()
-    || '';
-  updateMapIframe(mainLocatorMap, mapQuery, `Map of ${card.querySelector('h2')?.textContent.trim() || 'La Femme retailer'}`);
+  const name = card.querySelector('h2')?.textContent.trim() || 'La Femme retailer';
+  const address = card.querySelector('address')?.textContent.trim() || '';
+  updateMapIframe(mainLocatorMap, getStoreMapQuery(name, address) || name, `Map of ${name}`);
 };
 
 locatorResultCards.forEach((card) => {
@@ -2349,7 +2355,7 @@ if (cityMapLayout && cityMapCopy && cityMapFrame && cityRetailerCards.length) {
     flowers.textContent = '✿ ✿ ✿ ✿ ✿';
     const compactAddress = document.createElement('address');
     compactAddress.textContent = compactAddressText(address);
-    result.dataset.mapQuery = compactAddress.textContent || name;
+    result.dataset.mapQuery = getStoreMapQuery(name, compactAddress.textContent);
     content.append(title, flowers, compactAddress);
 
     [phone, website].forEach((source) => {
