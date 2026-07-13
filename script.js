@@ -1171,6 +1171,10 @@ const splitMegaMenuStateCities = () => {
 
   document.querySelectorAll('.mega-state-grid').forEach((grid) => {
     if (!(grid instanceof HTMLElement) || grid.dataset.cityColumnsReady === 'true') return;
+    if (grid.closest('.where-to-buy-menu')) {
+      grid.dataset.cityColumnsReady = 'true';
+      return;
+    }
 
     Array.from(grid.querySelectorAll(':scope > .mega-state-group')).forEach((group) => {
       const cityList = group.querySelector(':scope > .mega-city-list');
@@ -1220,7 +1224,8 @@ const setupWhereToBuyMenus = () => {
 
     const triggers = Array.from(menu.querySelectorAll('[data-country-trigger]'));
     const panels = Array.from(menu.querySelectorAll('[data-country-panel]'));
-    if (!triggers.length || !panels.length) return;
+    const usPanel = panels.find((panel) => panel.getAttribute('data-country-panel') === 'US');
+    if (!triggers.length || !(usPanel instanceof HTMLElement)) return;
 
     const summary = menu.querySelector(':scope > summary');
     const menuLink = menu.querySelector('.locator-nav-link');
@@ -1230,6 +1235,7 @@ const setupWhereToBuyMenus = () => {
       menuToggle?.setAttribute('aria-expanded', String(isOpen));
       menuToggle?.setAttribute('aria-label', isOpen ? 'Close store locator menu' : 'Open store locator menu');
     };
+
     menuLink?.addEventListener('click', (event) => event.stopPropagation());
     summary?.addEventListener('click', (event) => {
       if (event.target instanceof Element && event.target.closest('.locator-nav-link')) return;
@@ -1243,145 +1249,29 @@ const setupWhereToBuyMenus = () => {
       menuToggle?.setAttribute('aria-label', menu.open ? 'Close store locator menu' : 'Open store locator menu');
     });
 
-    const currentCityLink = panels
-      .flatMap((panel) => Array.from(panel.querySelectorAll('a[href]')))
+    triggers.forEach((trigger) => {
+      const isUnitedStates = trigger.getAttribute('data-country-trigger') === 'US';
+      trigger.setAttribute('aria-selected', String(isUnitedStates));
+      trigger.toggleAttribute('hidden', !isUnitedStates);
+    });
+
+    panels.forEach((panel) => {
+      panel.classList.toggle('is-active', panel === usPanel);
+    });
+
+    const currentUsCityLink = Array.from(usPanel.querySelectorAll('a[href]'))
       .find((link) => link.getAttribute('href') === currentPage);
-    currentCityLink?.setAttribute('aria-current', 'page');
+    currentUsCityLink?.setAttribute('aria-current', 'page');
 
-    const countryRail = menu.querySelector('.country-rail');
-    const stateNav = document.createElement('div');
-    stateNav.className = 'mega-state-nav';
-    stateNav.setAttribute('aria-label', 'Choose a state');
-
-    const countryPrompt = document.createElement('p');
-    countryPrompt.className = 'mega-country-rail-label';
-    countryPrompt.textContent = 'Select a country';
-
-    const countryBack = document.createElement('button');
-    countryBack.type = 'button';
-    countryBack.className = 'mega-country-back';
-    countryBack.textContent = '← Back to countries';
-
-    const stateBack = document.createElement('button');
-    stateBack.type = 'button';
-    stateBack.className = 'mega-country-back';
-    stateBack.textContent = '← Back to states';
-    let selectedCountry = '';
-
-    const setState = (country, state = '') => {
-      const panel = panels.find(
-        (item) => item.getAttribute('data-country-panel') === country,
-      );
-      if (!panel) return;
-
-      panel.querySelectorAll('.mega-state-group').forEach((group) => {
-        const stateName = group.dataset.stateName || group.querySelector('h3')?.textContent?.trim() || '';
-        group.hidden = !state || stateName !== state;
-      });
-
-      panel.querySelector('.mega-city-panel-prompt')?.toggleAttribute('hidden', Boolean(state));
-      stateNav.querySelectorAll('[data-state-name]').forEach((button) => {
-        const isActive = button.getAttribute('data-state-name') === state;
-        button.setAttribute('aria-selected', String(isActive));
-      });
-
-      menu.classList.toggle('has-state', Boolean(state));
-      if (state) countryRail?.replaceChildren(stateBack);
-    };
-
-    const renderStates = (country) => {
-      const panel = panels.find(
-        (item) => item.getAttribute('data-country-panel') === country,
-      );
-      if (!panel) return;
-
-      const states = [...new Set(
-        Array.from(panel.querySelectorAll('.mega-state-group'))
-          .map((group) => group.dataset.stateName || group.querySelector('h3')?.textContent?.trim() || '')
-          .filter(Boolean),
-      )].sort();
-
-      stateNav.replaceChildren();
-      const statePrompt = document.createElement('p');
-      statePrompt.className = 'mega-country-rail-label';
-      statePrompt.textContent = 'Select a state';
-      stateNav.append(statePrompt);
-
-      states.forEach((state) => {
-        const button = document.createElement('button');
-        button.type = 'button';
-        button.dataset.stateName = state;
-        button.textContent = state;
-        button.setAttribute('aria-selected', 'false');
-        button.addEventListener('click', () => setState(country, state));
-        stateNav.append(button);
-      });
-
-      let panelPrompt = panel.querySelector('.mega-city-panel-prompt');
-      if (!panelPrompt) {
-        panelPrompt = document.createElement('p');
-        panelPrompt.className = 'mega-city-panel-prompt';
-        panelPrompt.textContent = 'Select a state to view its city locations.';
-        panel.prepend(panelPrompt);
-      }
-      setState(country);
-    };
-
-    const setCountry = (country) => {
-      if (!country) {
-        selectedCountry = '';
-        menu.classList.remove('has-state');
-        panels.forEach((panel) => panel.classList.remove('is-active'));
-        countryRail?.replaceChildren(countryPrompt, ...triggers);
-        return;
-      }
-
-      selectedCountry = country;
-      menu.classList.remove('has-state');
-      triggers.forEach((trigger) => {
-        const isActive = trigger.getAttribute('data-country-trigger') === country;
-        trigger.setAttribute('aria-selected', String(isActive));
-      });
-      panels.forEach((panel) => {
-        const isActive = panel.getAttribute('data-country-panel') === country;
-        panel.classList.toggle('is-active', isActive);
-      });
-
-      renderStates(country);
-      countryRail?.replaceChildren(countryBack, stateNav);
-    };
-
-    triggers.forEach((trigger, index) => {
-      const country = trigger.getAttribute('data-country-trigger');
-
-      trigger.addEventListener('click', () => setCountry(country));
-      trigger.addEventListener('keydown', (event) => {
-        if (!['ArrowDown', 'ArrowUp', 'ArrowLeft', 'ArrowRight'].includes(event.key)) return;
-        event.preventDefault();
-        const direction = ['ArrowDown', 'ArrowRight'].includes(event.key) ? 1 : -1;
-        const nextTrigger =
-          triggers[(index + direction + triggers.length) % triggers.length];
-        nextTrigger.focus();
-      });
-    });
-
-    countryBack.addEventListener('click', () => setCountry(''));
-    stateBack.addEventListener('click', () => {
-      if (!selectedCountry) return;
-      setState(selectedCountry);
-      countryRail?.replaceChildren(countryBack, stateNav);
-    });
     menu.addEventListener('click', (event) => {
       const link = event.target instanceof Element ? event.target.closest('.mega-city-list > a[href]') : null;
       if (link) setMenuOpen(false);
     });
 
-    menu.classList.add('is-enhanced', 'is-wizard');
+    menu.classList.add('is-enhanced', 'is-state-list');
     menu.dataset.enhanced = 'true';
-    setCountry('');
   });
 };
-
 setupWhereToBuyMenus();
 
 const mainContent = document.querySelector('main');
