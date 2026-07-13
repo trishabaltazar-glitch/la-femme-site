@@ -1856,14 +1856,20 @@ h3 {
 }
 
 .where-to-buy-menu.is-state-list .mega-state-grid {
-  display: block;
-  column-count: 5;
-  column-gap: 56px;
+  display: grid;
+  grid-template-columns: repeat(5, minmax(0, 1fr));
+  gap: 0 56px;
+}
+
+.where-to-buy-menu.is-state-list .mega-state-column {
+  display: grid;
+  align-content: start;
+  gap: 34px;
+  min-width: 0;
 }
 
 .where-to-buy-menu.is-state-list .mega-state-group {
-  break-inside: avoid;
-  margin-bottom: 34px;
+  margin-bottom: 0;
 }
 
 .where-to-buy-menu.is-state-list .mega-state-group h3 {
@@ -3167,8 +3173,12 @@ h3 {
   }
 
   .where-to-buy-menu.is-state-list .mega-state-grid {
-    column-count: 2;
-    column-gap: 24px;
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+    gap: 28px 24px;
+  }
+
+  .where-to-buy-menu.is-state-list .mega-state-column {
+    gap: 28px;
   }
 
   .directory-state-grid {
@@ -3265,7 +3275,7 @@ h3 {
 
 @media (max-width: 560px) {
   .where-to-buy-menu.is-state-list .mega-state-grid {
-    column-count: 1;
+    grid-template-columns: 1fr;
   }
 }
 

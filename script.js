@@ -1216,6 +1216,33 @@ const splitMegaMenuStateCities = () => {
 
 splitMegaMenuStateCities();
 
+const arrangeMegaMenuStateColumns = (panel, columnCount = 5) => {
+  const grid = panel.querySelector(':scope .mega-state-grid');
+  if (!(grid instanceof HTMLElement) || grid.dataset.stateColumnsReady === 'true') return;
+
+  const groups = Array.from(grid.querySelectorAll(':scope > .mega-state-group'))
+    .filter((group) => group instanceof HTMLElement)
+    .sort((a, b) => {
+      const aName = a.dataset.stateName || a.querySelector('h3')?.textContent?.trim() || '';
+      const bName = b.dataset.stateName || b.querySelector('h3')?.textContent?.trim() || '';
+      return aName.localeCompare(bName);
+    });
+  if (!groups.length) return;
+
+  const columns = Array.from({ length: columnCount }, () => {
+    const column = document.createElement('div');
+    column.className = 'mega-state-column';
+    return column;
+  });
+
+  groups.forEach((group, index) => {
+    columns[index % columnCount].append(group);
+  });
+
+  grid.replaceChildren(...columns);
+  grid.dataset.stateColumnsReady = 'true';
+};
+
 const setupWhereToBuyMenus = () => {
   const currentPage = window.location.pathname.split('/').pop() || 'index.html';
 
@@ -1258,6 +1285,8 @@ const setupWhereToBuyMenus = () => {
     panels.forEach((panel) => {
       panel.classList.toggle('is-active', panel === usPanel);
     });
+
+    arrangeMegaMenuStateColumns(usPanel);
 
     const currentUsCityLink = Array.from(usPanel.querySelectorAll('a[href]'))
       .find((link) => link.getAttribute('href') === currentPage);
