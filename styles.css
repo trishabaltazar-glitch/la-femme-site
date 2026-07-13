@@ -1856,8 +1856,14 @@ h3 {
 }
 
 .where-to-buy-menu.is-state-list .mega-state-grid {
-  grid-template-columns: repeat(4, minmax(0, 1fr));
-  gap: 34px 56px;
+  display: block;
+  column-count: 5;
+  column-gap: 56px;
+}
+
+.where-to-buy-menu.is-state-list .mega-state-group {
+  break-inside: avoid;
+  margin-bottom: 34px;
 }
 
 .where-to-buy-menu.is-state-list .mega-state-group h3 {
@@ -3161,8 +3167,8 @@ h3 {
   }
 
   .where-to-buy-menu.is-state-list .mega-state-grid {
-    grid-template-columns: repeat(2, minmax(0, 1fr));
-    gap: 28px 24px;
+    column-count: 2;
+    column-gap: 24px;
   }
 
   .directory-state-grid {
@@ -3259,7 +3265,7 @@ h3 {
 
 @media (max-width: 560px) {
   .where-to-buy-menu.is-state-list .mega-state-grid {
-    grid-template-columns: 1fr;
+    column-count: 1;
   }
 }
 
